@@ -6,6 +6,23 @@
 #       URL_HASH SHA256=...
 #   )
 #   FetchContent_MakeAvailable(fmt)
+#
+#   FetchContent_Declare(fmt
+#       URL https://github.com/fmtlib/fmt/archive/refs/tags/12.1.0.tar.gz
+#       URL_HASH SHA256=ea7de4299689e12b6dddd392f9896f08fb0777ac7168897a244a6d6085043fea
+#   )
+#   FetchContent_MakeAvailable(fmt)
+# 
+#   FetchContent_Declare(fmt
+#       GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+#       GIT_TAG 12.1.0
+#   )
+#   FetchContent_MakeAvailable(fmt)
+#
+#   FetchContent_Declare(yyjson
+#       SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/fmt-12.1.0
+#   )
+#   FetchContent_MakeAvailable(fmt)
 
 # CLI11 - Command line parser
 add_external_package(CLI11 third_party/CLI11-2.5.0
@@ -61,4 +78,3 @@ add_external_package(spdlog third_party/spdlog-1.17.0
     URL_HASH SHA256=d8862955c6d74e5846b3f580b1605d2428b11d97a410d86e2fb13e857cd3a744
 )
 FetchContent_MakeAvailable(spdlog)
-
