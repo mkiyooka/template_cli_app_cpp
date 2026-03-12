@@ -60,21 +60,27 @@ add_custom_target(coverage
     COMMAND sh -c "${LLVM_PROFDATA_EXE} merge --sparse '${CMAKE_BINARY_DIR}/coverage-'*.profraw -o '${COVERAGE_PROFDATA}'"
     # 4. テキストレポート（ターミナル）
     COMMAND ${CMAKE_COMMAND} -E echo "=== Coverage report ==="
-    COMMAND ${LLVM_COV_EXE} report
-        ${_FIRST_BIN}
-        ${_LLVM_COV_OBJECT_FLAGS}
-        --instr-profile=${COVERAGE_PROFDATA}
-        "--ignore-filename-regex=.*/build-coverage/.*|.*/third_party/.*|.*/.pixi/.*|.*/tests/.*"
+    COMMAND sh -c "${LLVM_COV_EXE} report \
+        $<TARGET_FILE:test_config_manager> \
+        --object=$<TARGET_FILE:test_doctest_usage> \
+        --object=$<TARGET_FILE:test_yyjson_wrapper> \
+        --instr-profile=${COVERAGE_PROFDATA} \
+        --no-warn \
+        \"--ignore-filename-regex=.*/build-coverage/.*|.*/third_party/.*|.*/.pixi/.*|.*/tests/.*\" \
+        2>/dev/null"
     # 5. HTML レポート生成
     COMMAND ${CMAKE_COMMAND} -E echo "=== Generating HTML report: ${COVERAGE_OUTPUT_DIR} ==="
     COMMAND ${CMAKE_COMMAND} -E make_directory ${COVERAGE_OUTPUT_DIR}
-    COMMAND ${LLVM_COV_EXE} show
-        ${_FIRST_BIN}
-        ${_LLVM_COV_OBJECT_FLAGS}
-        --instr-profile=${COVERAGE_PROFDATA}
-        --format=html
-        --output-dir=${COVERAGE_OUTPUT_DIR}
-        "--ignore-filename-regex=.*/build-coverage/.*|.*/third_party/.*|.*/.pixi/.*|.*/tests/.*"
+    COMMAND sh -c "${LLVM_COV_EXE} show \
+        $<TARGET_FILE:test_config_manager> \
+        --object=$<TARGET_FILE:test_doctest_usage> \
+        --object=$<TARGET_FILE:test_yyjson_wrapper> \
+        --instr-profile=${COVERAGE_PROFDATA} \
+        --format=html \
+        --output-dir=${COVERAGE_OUTPUT_DIR} \
+        --no-warn \
+        \"--ignore-filename-regex=.*/build-coverage/.*|.*/third_party/.*|.*/.pixi/.*|.*/tests/.*\" \
+        2>/dev/null"
     COMMAND ${CMAKE_COMMAND} -E echo "=== HTML report: ${COVERAGE_OUTPUT_DIR}/index.html ==="
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running coverage analysis"
