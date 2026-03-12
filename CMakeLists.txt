@@ -10,7 +10,7 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-project(template_cli_cpp
+project(template_cli_app_cpp
     VERSION 0.1.0
     LANGUAGES CXX C
 )
@@ -118,6 +118,65 @@ include(FetchContent)
 include(cmake/local-or-fetch.cmake)
 include(cmake/dependencies-app.cmake)
 include(cmake/dependencies-test.cmake)
+
+# ==============================================================================
+# Library Target - ヘッダオンリーインターフェースライブラリ
+# ==============================================================================
+add_library(template_cli_app_cpp INTERFACE)
+add_library(template_cli_app_cpp::template_cli_app_cpp ALIAS template_cli_app_cpp)
+
+target_include_directories(template_cli_app_cpp INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+# ビルド時のみリンク（FetchContent依存はインストール対象外）
+# インストール後の利用者は find_package(fmt) / find_package(spdlog) 等で自前解決する
+target_link_libraries(template_cli_app_cpp INTERFACE
+    $<BUILD_INTERFACE:fmt::fmt>
+    $<BUILD_INTERFACE:spdlog::spdlog>
+    $<BUILD_INTERFACE:yyjson>
+    $<BUILD_INTERFACE:csv>
+)
+
+# ==============================================================================
+# Install rules
+# ==============================================================================
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+install(TARGETS template_cli_app_cpp
+    EXPORT template_cli_app_cppTargets
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(DIRECTORY include/template_cli_app_cpp
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT template_cli_app_cppTargets
+    FILE template_cli_app_cppTargets.cmake
+    NAMESPACE template_cli_app_cpp::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/template_cli_app_cpp
+)
+
+configure_package_config_file(
+    cmake/template_cli_app_cppConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/template_cli_app_cppConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/template_cli_app_cpp
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/template_cli_app_cppConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/template_cli_app_cppConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/template_cli_app_cppConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/template_cli_app_cpp
+)
 
 # ==============================================================================
 # Main Application - メインCLIアプリケーション

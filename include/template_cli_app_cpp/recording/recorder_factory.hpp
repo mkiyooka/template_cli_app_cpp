@@ -7,9 +7,9 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-#include "template_cli_cpp/recording/data_recorder.hpp"
-#include "template_cli_cpp/recording/null_recorder.hpp"
-#include "template_cli_cpp/recording/spdlog_recorder.hpp"
+#include "template_cli_app_cpp/recording/data_recorder.hpp"
+#include "template_cli_app_cpp/recording/null_recorder.hpp"
+#include "template_cli_app_cpp/recording/spdlog_recorder.hpp"
 
 namespace recording {
 

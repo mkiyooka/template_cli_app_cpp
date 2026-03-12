@@ -9,11 +9,11 @@
 #include "command/subcommand.hpp"
 #include "config/config_manager.hpp"
 #include "config/config_schema.hpp"
-#include "template_cli_cpp/logging/logger_factory.hpp"
-#include "template_cli_cpp/output/output_context.hpp"
-#include "template_cli_cpp/recording/recorder_factory.hpp"
-#include "template_cli_cpp/recording/recorder_manager.hpp"
-#include "template_cli_cpp/utility/yyjson_wrapper.hpp"
+#include "template_cli_app_cpp/logging/logger_factory.hpp"
+#include "template_cli_app_cpp/output/output_context.hpp"
+#include "template_cli_app_cpp/recording/recorder_factory.hpp"
+#include "template_cli_app_cpp/recording/recorder_manager.hpp"
+#include "template_cli_app_cpp/utility/yyjson_wrapper.hpp"
 
 namespace {
 

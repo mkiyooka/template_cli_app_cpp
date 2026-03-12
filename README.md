@@ -29,8 +29,8 @@ pixi run build    # ビルド
 pixi run test     # テスト実行
 
 # アプリ実行例
-./build/template_cli_cpp add 10 20
-./build/template_cli_cpp --config config/example.toml subtract 15 5
+./build/template_cli_app_cpp add 10 20
+./build/template_cli_app_cpp --config config/example.toml subtract 15 5
 ```
 
 ## 対応プラットフォーム
@@ -131,10 +131,10 @@ CLI 引数・設定ファイル・デフォルト値を統合管理する。
 
 ```bash
 # 設定ファイルを指定して実行
-./build/template_cli_cpp --config config/example.toml add 10 20
+./build/template_cli_app_cpp --config config/example.toml add 10 20
 
 # CLI 引数で設定値を上書き（ファイルより優先）
-./build/template_cli_cpp --config config/example.toml --settings.value=99 add 10 20
+./build/template_cli_app_cpp --config config/example.toml --settings.value=99 add 10 20
 ```
 
 `--config` を省略した場合、`config/default.{toml,json,yaml}` を自動探索する（複数存在はエラー）。
@@ -149,7 +149,7 @@ CLI 引数・設定ファイル・デフォルト値を統合管理する。
 - `include/` — 公開ヘッダファイル
     - `command/` — CLI インターフェース（カスタマイズ対象）
     - `config/` — 設定システム（カスタマイズ対象）
-    - `template_cli_cpp/` — 汎用ライブラリ層（変更不要）
+    - `template_cli_app_cpp/` — 汎用ライブラリ層（変更不要）
         - `logging/` — Logger インターフェース・spdlog ラッパー・ファクトリ
         - `recording/` — DataRecorder インターフェース・spdlog ラッパー・ファクトリ
         - `output/` — OutputContext DI コンテキスト
@@ -168,7 +168,7 @@ CLI 引数・設定ファイル・デフォルト値を統合管理する。
 
 **変更不要（汎用ライブラリ層）**:
 
-- `include/template_cli_cpp/` — logging / recording / output / utility
+- `include/template_cli_app_cpp/` — logging / recording / output / utility
 
 **変更対象（CLIテンプレート層）**:
 

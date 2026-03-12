@@ -8,9 +8,9 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-#include "template_cli_cpp/logging/logger.hpp"
-#include "template_cli_cpp/logging/null_logger.hpp"
-#include "template_cli_cpp/logging/spdlog_logger.hpp"
+#include "template_cli_app_cpp/logging/logger.hpp"
+#include "template_cli_app_cpp/logging/null_logger.hpp"
+#include "template_cli_app_cpp/logging/spdlog_logger.hpp"
 
 namespace logging {
 

@@ -4,7 +4,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include "template_cli_cpp/logging/logger.hpp"
+#include "template_cli_app_cpp/logging/logger.hpp"
 
 namespace logging {
 

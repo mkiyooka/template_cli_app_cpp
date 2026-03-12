@@ -5,7 +5,7 @@
 #include <nlohmann/json.hpp>
 #include <yyjson.h>
 
-#include "template_cli_cpp/utility/yyjson_wrapper.hpp"
+#include "template_cli_app_cpp/utility/yyjson_wrapper.hpp"
 
 namespace {
 

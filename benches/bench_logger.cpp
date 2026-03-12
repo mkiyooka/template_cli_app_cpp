@@ -9,8 +9,8 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
-#include "template_cli_cpp/logging/null_logger.hpp"
-#include "template_cli_cpp/logging/spdlog_logger.hpp"
+#include "template_cli_app_cpp/logging/null_logger.hpp"
+#include "template_cli_app_cpp/logging/spdlog_logger.hpp"
 #include "support/spy_logger.hpp"
 
 namespace {

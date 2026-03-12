@@ -1,6 +1,6 @@
 #pragma once
 
-#include "template_cli_cpp/logging/logger.hpp"
+#include "template_cli_app_cpp/logging/logger.hpp"
 
 namespace logging {
 

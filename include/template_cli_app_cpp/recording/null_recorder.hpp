@@ -1,6 +1,6 @@
 #pragma once
 
-#include "template_cli_cpp/recording/data_recorder.hpp"
+#include "template_cli_app_cpp/recording/data_recorder.hpp"
 
 namespace recording {
 

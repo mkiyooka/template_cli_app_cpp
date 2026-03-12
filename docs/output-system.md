@@ -34,7 +34,7 @@ output::OutputContext<Module>（DI）
 
 ## ファイル構成
 
-- `include/template_cli_cpp/`
+- `include/template_cli_app_cpp/`
     - `logging/`
         - `logger.hpp` — `logging::Logger` 抽象基底クラス・`logging::LogLevel` 定義
         - `null_logger.hpp` — 何もしない実装
@@ -77,7 +77,7 @@ output::OutputContext<Module>（DI）
 ### logging::Logger
 
 ```cpp
-// include/template_cli_cpp/logging/logger.hpp
+// include/template_cli_app_cpp/logging/logger.hpp
 
 namespace logging {
 
@@ -101,7 +101,7 @@ public:
 ### recording::DataRecorder
 
 ```cpp
-// include/template_cli_cpp/recording/data_recorder.hpp
+// include/template_cli_app_cpp/recording/data_recorder.hpp
 
 namespace recording {
 
@@ -284,10 +284,10 @@ FetchContent_MakeAvailable(spdlog)
 ## 初期化例
 
 ```cpp
-#include "template_cli_cpp/logging/logger_factory.hpp"
-#include "template_cli_cpp/output/output_context.hpp"
-#include "template_cli_cpp/recording/recorder_factory.hpp"
-#include "template_cli_cpp/recording/recorder_manager.hpp"
+#include "template_cli_app_cpp/logging/logger_factory.hpp"
+#include "template_cli_app_cpp/output/output_context.hpp"
+#include "template_cli_app_cpp/recording/recorder_factory.hpp"
+#include "template_cli_app_cpp/recording/recorder_manager.hpp"
 
 enum class Module { X, Y, Z };
 

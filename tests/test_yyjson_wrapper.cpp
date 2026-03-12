@@ -7,7 +7,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "template_cli_cpp/utility/yyjson_wrapper.hpp"
+#include "template_cli_app_cpp/utility/yyjson_wrapper.hpp"
 
 // JSON文字列をパースして検証するヘルパー
 static nlohmann::json Parse(const std::string &s) { return nlohmann::json::parse(s); }

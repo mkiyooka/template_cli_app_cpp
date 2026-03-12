@@ -17,10 +17,10 @@ enum class Module { Solver, Postproc };
 ### 2. Logger と RecorderManager を初期化する
 
 ```cpp
-#include "template_cli_cpp/logging/logger_factory.hpp"
-#include "template_cli_cpp/output/output_context.hpp"
-#include "template_cli_cpp/recording/recorder_factory.hpp"
-#include "template_cli_cpp/recording/recorder_manager.hpp"
+#include "template_cli_app_cpp/logging/logger_factory.hpp"
+#include "template_cli_app_cpp/output/output_context.hpp"
+#include "template_cli_app_cpp/recording/recorder_factory.hpp"
+#include "template_cli_app_cpp/recording/recorder_manager.hpp"
 
 // 診断ログ: コンソール出力、Info レベル以上
 auto logger = logging::LoggerFactory::MakeConsole("app", logging::LogLevel::Info);
@@ -115,9 +115,9 @@ out.GetRecorders().FlushAll();
 テストでは `logging::NullLogger` と `SpyLogger` を使い、外部 I/O なしに動作を検証できる。
 
 ```cpp
-#include "template_cli_cpp/logging/null_logger.hpp"
+#include "template_cli_app_cpp/logging/null_logger.hpp"
 #include "tests/support/spy_logger.hpp"
-#include "template_cli_cpp/recording/null_recorder.hpp"
+#include "template_cli_app_cpp/recording/null_recorder.hpp"
 
 // ログ検証が不要な場合
 logging::NullLogger null_log;
