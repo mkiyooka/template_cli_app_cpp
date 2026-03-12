@@ -30,6 +30,24 @@ add_test(
     COMMAND $<TARGET_FILE:test_doctest_usage>
 )
 
+# csv_wrapper test
+add_executable(test_csv_wrapper
+    test_csv_wrapper.cpp
+)
+target_include_directories(test_csv_wrapper PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/tests
+)
+target_link_libraries(test_csv_wrapper PRIVATE
+    csv
+    tl::expected
+    doctest::doctest
+)
+add_test(
+    NAME test_csv_wrapper
+    COMMAND $<TARGET_FILE:test_csv_wrapper>
+)
+
 # yyjson_wrapper test
 add_executable(test_yyjson_wrapper
     test_yyjson_wrapper.cpp

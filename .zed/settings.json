@@ -14,6 +14,7 @@
                     "--clang-tidy",
                     "--completion-style=detailed",
                     "--header-insertion=never",
+                    "--compile-commands-dir=$ZED_WORKTREE_ROOT/build",
                 ],
             },
         },

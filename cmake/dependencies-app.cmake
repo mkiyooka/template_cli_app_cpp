@@ -78,3 +78,10 @@ add_external_package(spdlog third_party/spdlog-1.17.0
     URL_HASH SHA256=d8862955c6d74e5846b3f580b1605d2428b11d97a410d86e2fb13e857cd3a744
 )
 FetchContent_MakeAvailable(spdlog)
+
+# tl::expected - monadic error handling (header-only)
+add_external_package(tl_expected third_party/expected-1.1.0
+    URL https://github.com/TartanLlama/expected/archive/refs/tags/v1.1.0.tar.gz
+    URL_HASH SHA256=1db357f46dd2b24447156aaf970c4c40a793ef12a8a9c2ad9e096d9801368df6
+)
+FetchContent_MakeAvailable(tl_expected)

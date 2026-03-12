@@ -2,7 +2,7 @@ If:
     PathMatch: .*
 
 CompileFlags:
-    CompilationDatabase: .
+    CompilationDatabase: build
     Add:
         - -Wall
         - -std=c++17

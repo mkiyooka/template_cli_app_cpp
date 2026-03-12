@@ -95,15 +95,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang)$")
     endif()
 endif()
 
-# compile_commands.json 生成とプロジェクトルートディレクトリへの自動配置
+# compile_commands.json 生成（エディタは build/compile_commands.json を直接参照する）
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-add_custom_target(copy_compile_commands ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-        ${CMAKE_BINARY_DIR}/compile_commands.json 
-        ${CMAKE_SOURCE_DIR}/compile_commands.json
-    DEPENDS ${CMAKE_BINARY_DIR}/compile_commands.json
-    COMMENT "Copying compile_commands.json to project root"
-)
 
 include_directories(include)
 
@@ -137,6 +130,7 @@ target_link_libraries(template_cli_app_cpp INTERFACE
     $<BUILD_INTERFACE:spdlog::spdlog>
     $<BUILD_INTERFACE:yyjson>
     $<BUILD_INTERFACE:csv>
+    $<BUILD_INTERFACE:tl::expected>
 )
 
 # ==============================================================================
