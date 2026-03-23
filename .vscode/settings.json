@@ -24,6 +24,7 @@
     ],
 
     /* CMake settings */
+    "cmake.cmakePath": "${workspaceFolder}/.pixi/envs/default/bin/cmake",
     "cmake.buildDirectory": "${workspaceFolder}/build",
     "cmake.environment": {
         "PATH": "${env:HOME}/.pixi/bin:${env:PATH}"
