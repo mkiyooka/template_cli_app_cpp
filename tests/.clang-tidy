@@ -47,6 +47,8 @@ Checks: >
     -readability-magic-numbers,
 
     -cert-err33-c,
+    -cert-err58-cpp,
+    -readability-function-cognitive-complexity,
     -cppcoreguidelines-avoid-do-while,
     -cppcoreguidelines-non-private-member-variables-in-classes,
     -cppcoreguidelines-special-member-functions,

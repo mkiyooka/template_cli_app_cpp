@@ -65,7 +65,14 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
     endif()
 
     if(CLANG_TIDY_EXE)
-        set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}" PARENT_SCOPE)
+        # CMAKE_CXX_CLANG_TIDY はセットしない。
+        # セットするとビルド時に build/_deps のサードパーティコードまで
+        # チェックされてしまうため、lint ターゲット経由での明示実行のみとする。
+
+        # build/_deps に Checks:"-*" の .clang-tidy を生成してサードパーティを除外する。
+        # run-clang-tidy がインクルードグラフを辿って _deps 以下のヘッダに
+        # .clang-tidy を適用しようとするのを防ぐ。
+        file(WRITE "${CMAKE_BINARY_DIR}/_deps/.clang-tidy" "Checks: \"-*\"\n")
 
         # Check for run-clang-tidy for parallel execution
         find_program(RUN_CLANG_TIDY_EXE NAMES run-clang-tidy)
