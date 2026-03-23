@@ -47,6 +47,12 @@ typos = ">=1.36.3,<2"     # Spell checker
 llvm-tools = "==21.1.1"   # llvm-cov (coverage analysis)
 clangxx = "==21.1.1"      # clang++ (coverage build / Linux)
 
+[feature.dev.tasks]
+format = "cmake --build build --target format"
+lint = "cmake --build build --target lint"
+run-cppcheck = "cmake --build build --target run-cppcheck"
+fullcheck = "pixi run -e dev typos && pixi run -e dev lint && pixi run -e dev run-cppcheck"
+
 [feature.dev.target.linux-64.dependencies]
 compiler-rt_linux-64 = "==21.1.1"  # Clang runtime libraries (ASan, coverage, etc.)
 # Note: valgrind is NOT listed here.
@@ -94,12 +100,6 @@ cmake --build build-asan --target clean || true &&
 cmake --build build-coverage --target clean || true
 """
 
-# ---- quality (dev environment で実行) ----
-format = "cmake --build build --target format"
-lint = "cmake --build build --target lint"
-run-cppcheck = "cmake --build build --target run-cppcheck"
-
-fullcheck = "pixi run typos && pixi run lint && pixi run run-cppcheck"
 
 # ---- sanitizer workflow ----
 asan = """

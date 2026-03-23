@@ -66,6 +66,7 @@ public:
         }
         const auto &indices = *indices_result;
         std::vector<double> result;
+        // cppcheck-suppress useStlAlgorithm - predicate フィルタを含むため std::transform に単純置換不可
         for (auto &row : csv_reader) {
             if (predicate(row)) {
                 for (int idx : indices) {
@@ -101,6 +102,7 @@ public:
         }
         const auto &indices = *indices_result;
         std::vector<std::string> result;
+        // cppcheck-suppress useStlAlgorithm - predicate フィルタを含むため std::transform に単純置換不可
         for (auto &row : csv_reader) {
             if (predicate(row)) {
                 for (int idx : indices) {
@@ -136,6 +138,7 @@ public:
         }
         const auto &indices = *indices_result;
         out.clear();
+        // cppcheck-suppress useStlAlgorithm - predicate フィルタを含むため std::transform に単純置換不可
         for (auto &row : csv_reader) {
             if (predicate(row)) {
                 for (int idx : indices) {
@@ -170,6 +173,7 @@ public:
         }
         const auto &indices = *indices_result;
         out.clear();
+        // cppcheck-suppress useStlAlgorithm - predicate フィルタを含むため std::transform に単純置換不可
         for (auto &row : csv_reader) {
             if (predicate(row)) {
                 for (int idx : indices) {

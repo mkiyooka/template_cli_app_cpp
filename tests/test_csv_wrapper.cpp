@@ -20,7 +20,7 @@ static const std::string kTestCsv =
 
 TEST_CASE("CsvReader: ReadFiltered return版 正常系") {
     const TempFile tmp("test_csv_readfiltered.csv", kTestCsv);
-    utility::CsvReader reader(tmp.Str());
+    const utility::CsvReader reader(tmp.Str());
 
     auto result = reader.ReadFiltered(
         [](const csv::CSVRow &row) { return row["flag"].get<int>() == 1; },
@@ -39,7 +39,7 @@ TEST_CASE("CsvReader: ReadFiltered return版 正常系") {
 
 TEST_CASE("CsvReader: ReadFilteredAsStrings return版 正常系") {
     const TempFile tmp("test_csv_readfilteredasstrings.csv", kTestCsv);
-    utility::CsvReader reader(tmp.Str());
+    const utility::CsvReader reader(tmp.Str());
 
     auto result = reader.ReadFilteredAsStrings(
         [](const csv::CSVRow &row) { return row["flag"].get<int>() == 1; },
@@ -58,7 +58,7 @@ TEST_CASE("CsvReader: ReadFilteredAsStrings return版 正常系") {
 
 TEST_CASE("CsvReader: ReadFiltered out-param版 正常系 / 事前データのクリア確認") {
     const TempFile tmp("test_csv_outparam.csv", kTestCsv);
-    utility::CsvReader reader(tmp.Str());
+    const utility::CsvReader reader(tmp.Str());
 
     // 事前に別データを詰めた vector を渡す
     std::vector<double> out = {999.0, 888.0, 777.0};
@@ -81,7 +81,7 @@ TEST_CASE("CsvReader: ReadFiltered out-param版 正常系 / 事前データの�
 
 TEST_CASE("CsvReader: 存在しない列名でエラーが返る") {
     const TempFile tmp("test_csv_error.csv", kTestCsv);
-    utility::CsvReader reader(tmp.Str());
+    const utility::CsvReader reader(tmp.Str());
 
     SUBCASE("ReadFiltered return版") {
         auto result = reader.ReadFiltered(
