@@ -210,4 +210,4 @@ debug/
 *.swp
 
 # Output files (runtime-generated)
-output/
+/output/

@@ -52,19 +52,27 @@ int main() {
     const auto values = reader.ReadFiltered(predicate, {"value_a", "value_b"});
 
     std::cout << "[ReadFiltered]\n";
-    std::cout << "  filtered rows : " << values.size() / 2 << "\n";
-    if (!values.empty()) {
-        std::cout << "  first value_a : " << values[0] << "\n";
-        std::cout << "  first value_b : " << values[1] << "\n";
+    if (values) {
+        std::cout << "  filtered rows : " << values->size() / 2 << "\n";
+        if (!values->empty()) {
+            std::cout << "  first value_a : " << (*values)[0] << "\n";
+            std::cout << "  first value_b : " << (*values)[1] << "\n";
+        }
+    } else {
+        std::cerr << "  error: " << values.error() << "\n";
     }
 
     // ── ReadFilteredAsStrings: flag==1 の行から category を文字列で取得 ──
     const auto categories = reader.ReadFilteredAsStrings(predicate, {"category"});
 
     std::cout << "\n[ReadFilteredAsStrings]\n";
-    std::cout << "  filtered rows  : " << categories.size() << "\n";
-    if (!categories.empty()) {
-        std::cout << "  first category : " << categories[0] << "\n";
+    if (categories) {
+        std::cout << "  filtered rows  : " << categories->size() << "\n";
+        if (!categories->empty()) {
+            std::cout << "  first category : " << (*categories)[0] << "\n";
+        }
+    } else {
+        std::cerr << "  error: " << categories.error() << "\n";
     }
 
     std::filesystem::remove(path);
