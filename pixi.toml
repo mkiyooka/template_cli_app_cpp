@@ -11,32 +11,50 @@ scripts = ["context/setup.sh"]
 [activation.env]
 LD_LIBRARY_PATH = "${PIXI_PROJECT_ROOT}/lib:$LD_LIBRARY_PATH"
 
+# ==============================================================================
+# default environment: ビルド・テストのみ必要なパッケージ
+# ==============================================================================
 [dependencies]
 # C++17 minimum requirement: clang >= 5.0, gcc >= 7.0, MSVC >= 19.14 (VS2017)
-clang = "==21.1.1"  # Latest stable version - available on all platforms
-lld = "==21.1.1"  # LLVM linker
-clang-tools = "==21.1.1"  # Includes: clang-tidy, clang-format, clangd
-cppcheck = "==2.18.3"  # Static analysis tool
-cmake = "==4.1.1"  # Build system generator
+clang = "==21.1.1"  # C/C++ compiler (clang/clang++)
+cmake = "==4.1.1"   # Build system generator
 ninja = "==1.13.1"  # Build system
-typos = ">=1.36.3,<2"  # Spell checker
 ccache = ">=4.10.0,<5"  # C/C++ compiler cache
-llvm-tools = "==21.1.1"  # LLVM tools (includes llvm-cov for coverage analysis)
-clangxx = "==21.1.1"  # Provides clang++ for coverage builds (Linux)
 
 [target.linux-64.dependencies]
-gcc = "==15.1.0"  # GCC compiler
-gxx = "==15.1.0"  # G++ compiler
-mold = "==2.40.4"
-libgcc-ng = "==15.1.0"  # GCC runtime library
+gcc = "==15.1.0"           # GCC compiler
+gxx = "==15.1.0"           # G++ compiler
+mold = "==2.40.4"          # Fast linker
+libgcc-ng = "==15.1.0"     # GCC runtime library
 libstdcxx-ng = "==15.1.0"  # C++ standard library
+
+[target.win-64.dependencies]
+clang_win-64 = "==21.1"    # Clang cross-compiler for Windows
+clangxx_win-64 = "==21.1"  # Clang++ cross-compiler for Windows
+# MSYS2/MinGW related packages
+m2w64-sysroot_win-64 = "==12.0.0.r4.gg4f2fc60ca"  # System root for MinGW-w64
+m2-gcc-libs = "==13.3.0.1"        # GCC runtime libraries
+libgcc-devel_win-64 = "==15.1.0"  # GCC development libraries
+
+# ==============================================================================
+# dev feature: 開発者向け追加ツール（静的解析・カバレッジ・スペルチェック等）
+# ==============================================================================
+[feature.dev.dependencies]
+lld = "==21.1.1"          # LLVM linker (coverage build で使用)
+clang-tools = "==21.1.1"  # clang-tidy, clang-format, clangd
+cppcheck = "==2.18.3"     # Static analysis tool
+typos = ">=1.36.3,<2"     # Spell checker
+llvm-tools = "==21.1.1"   # llvm-cov (coverage analysis)
+clangxx = "==21.1.1"      # clang++ (coverage build / Linux)
+
+[feature.dev.target.linux-64.dependencies]
 compiler-rt_linux-64 = "==21.1.1"  # Clang runtime libraries (ASan, coverage, etc.)
 # Note: valgrind is NOT listed here.
 # conda-forge valgrind cannot inspect binaries that use the system dynamic linker
 # (/lib64/ld-linux-x86-64.so.2). Install valgrind via the system package manager instead:
 #   sudo apt-get install valgrind   # Ubuntu/Debian
 
-[target.linux-64.tasks.asan]
+[feature.dev.target.linux-64.tasks.asan]
 cmd = """
 cmake --preset=asan &&
 cmake --build build-asan &&
@@ -44,7 +62,7 @@ ctest --test-dir build-asan
 """
 env = { CC = "gcc", CXX = "g++" }
 
-[target.linux-64.tasks.coverage]
+[feature.dev.target.linux-64.tasks.coverage]
 cmd = """
 cmake --preset=coverage &&
 cmake --build build-coverage --target coverage &&
@@ -52,14 +70,16 @@ cmake --build build-coverage --target coverage-report
 """
 env = { CC = "clang", CXX = "clang++" }
 
-[target.win-64.dependencies]
-clang_win-64 = "==21.1"  # Clang cross-compiler for Windows
-clangxx_win-64 = "==21.1"  # Clang++ cross-compiler for Windows
-# MSYS2/MinGW related packages
-m2w64-sysroot_win-64 = "==12.0.0.r4.gg4f2fc60ca"  # System root for MinGW-w64
-m2-gcc-libs = "==13.3.0.1"  # GCC runtime libraries
-libgcc-devel_win-64 = "==15.1.0"  # GCC development libraries
+# ==============================================================================
+# environments
+# ==============================================================================
+[environments]
+default = { solve-group = "main" }
+dev = { features = ["dev"], solve-group = "main" }
 
+# ==============================================================================
+# tasks (default environment)
+# ==============================================================================
 [tasks]
 # ---- normal workflow ----
 config = "cmake --preset=release"
@@ -74,7 +94,7 @@ cmake --build build-asan --target clean || true &&
 cmake --build build-coverage --target clean || true
 """
 
-# ---- quality ----
+# ---- quality (dev environment で実行) ----
 format = "cmake --build build --target format"
 lint = "cmake --build build --target lint"
 run-cppcheck = "cmake --build build --target run-cppcheck"

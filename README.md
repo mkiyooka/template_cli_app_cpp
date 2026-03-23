@@ -19,7 +19,12 @@ source ~/.bashrc   # bash の場合
 source ~/.zshrc    # zsh の場合
 ```
 
-pixi をインストール後、`pixi install` でコンパイラ・ツール類が自動セットアップされる。
+pixi をインストール後、以下のコマンドで環境をセットアップする。
+
+```bash
+pixi install          # ビルド・テスト用（default 環境）
+pixi install -e dev   # 開発者用（静的解析・カバレッジ等を追加）
+```
 
 ## クイックスタート
 
@@ -71,20 +76,20 @@ pixi run build            # ビルド
 pixi run test             # テスト実行
 pixi run clean            # ビルド成果物をクリーン（全ビルドディレクトリ対象）
 
-# ---- コード品質 ----
-pixi run format           # clang-format によるコード整形
-pixi run lint             # clang-tidy による静的解析
-pixi run run-cppcheck     # cppcheck による静的解析
-pixi run fullcheck        # typos + lint + cppcheck をまとめて実行
+# ---- コード品質（dev 環境が必要: pixi install -e dev） ----
+pixi run -e dev format           # clang-format によるコード整形
+pixi run -e dev lint             # clang-tidy による静的解析
+pixi run -e dev run-cppcheck     # cppcheck による静的解析
+pixi run -e dev fullcheck        # typos + lint + cppcheck をまとめて実行
 
-# ---- サニタイザ（ASan + UBSan）: Linux のみ ----
-pixi run asan             # 設定 → ビルド → テストをまとめて実行（build-asan/）
+# ---- サニタイザ（ASan + UBSan）: Linux のみ、dev 環境が必要 ----
+pixi run -e dev asan             # 設定 → ビルド → テストをまとめて実行（build-asan/）
 
-# ---- カバレッジ ----
-pixi run coverage         # 設定 → 計測 → HTML レポート生成（build-coverage/）
+# ---- カバレッジ（dev 環境が必要） ----
+pixi run -e dev coverage         # 設定 → 計測 → HTML レポート生成（build-coverage/）
 
 # ---- valgrind: Linux のみ、要システムインストール ----
-pixi run valgrind         # 全テストを valgrind（memcheck）で実行
+pixi run valgrind         # 全テストを valgrind（memcheck）で実行（dev 環境不要）
 ```
 
 ### 並列ビルドジョブ数
