@@ -103,14 +103,19 @@ include_directories(include)
 # カバレッジフラグ（add_subdirectory より前に設定する必要がある）
 include(cmake/coverage-flags.cmake)
 
-# サニタイザフラグ（add_subdirectory より前に設定する必要がある）
-include(cmake/sanitizer-flags.cmake)
-
 # サードパーティライブラリの導入
+# FETCHCONTENT_BASE_DIR をプロジェクトルート直下の _deps に固定することで
+# build / build-asan / build-coverage 間でダウンロード・展開済みソースを共有し
+# 各プリセットの初回 configure 時の再ダウンロードを防ぐ
+set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/_deps" CACHE PATH
+    "FetchContent shared source cache" FORCE)
 include(FetchContent)
 include(cmake/local-or-fetch.cmake)
 include(cmake/dependencies-app.cmake)
 include(cmake/dependencies-test.cmake)
+
+# サニタイザフラグ（FetchContent より後に定義することでサードパーティに伝播しない）
+include(cmake/sanitizer-flags.cmake)
 
 # ==============================================================================
 # Library Target - ヘッダオンリーインターフェースライブラリ

@@ -7,7 +7,7 @@ add_executable(cmd main.cpp)
 set_target_properties(cmd PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
 )
-target_link_libraries(cmd PRIVATE command_lib config_lib)
+target_link_libraries(cmd PRIVATE command_lib config_lib sanitizer_flags)
 
 # プリコンパイル済みヘッダーの設定
 if(USE_PCH)

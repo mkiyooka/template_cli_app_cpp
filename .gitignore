@@ -205,6 +205,9 @@ generators/
 # Build directories
 debug/
 
+# FetchContent shared source cache (build / build-asan / build-coverage 共有)
+/_deps/
+
 # Other files to ignore
 .DS_Store
 *.swp

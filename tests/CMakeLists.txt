@@ -10,7 +10,7 @@ target_include_directories(test_config_manager PRIVATE
     ${PROJECT_SOURCE_DIR}/src/config
     ${PROJECT_SOURCE_DIR}/tests
 )
-target_link_libraries(test_config_manager PRIVATE config_lib command_lib CLI11::CLI11 doctest::doctest)
+target_link_libraries(test_config_manager PRIVATE config_lib command_lib CLI11::CLI11 doctest::doctest sanitizer_flags)
 add_test(
     NAME test_config_manager
     COMMAND $<TARGET_FILE:test_config_manager>
@@ -24,7 +24,7 @@ target_include_directories(test_doctest_usage PRIVATE
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/tests
 )
-target_link_libraries(test_doctest_usage PRIVATE doctest::doctest)
+target_link_libraries(test_doctest_usage PRIVATE doctest::doctest sanitizer_flags)
 add_test(
     NAME test_doctest_usage
     COMMAND $<TARGET_FILE:test_doctest_usage>
@@ -42,6 +42,7 @@ target_link_libraries(test_csv_wrapper PRIVATE
     csv
     tl::expected
     doctest::doctest
+    sanitizer_flags
 )
 add_test(
     NAME test_csv_wrapper
@@ -57,6 +58,7 @@ target_link_libraries(test_yyjson_wrapper PRIVATE
     yyjson
     nlohmann_json::nlohmann_json
     doctest::doctest
+    sanitizer_flags
 )
 add_test(
     NAME test_yyjson_wrapper

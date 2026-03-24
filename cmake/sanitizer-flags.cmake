@@ -1,8 +1,14 @@
 # AddressSanitizer + UndefinedBehaviorSanitizer instrumentation flags
-# このファイルは add_subdirectory() より前に include すること。
-# add_compile_options / add_link_options はその後に追加されたターゲットに適用される。
+#
+# add_compile_options / add_link_options を使わず INTERFACE ライブラリとして定義する。
+# これにより FetchContent でビルドされるサードパーティには ASan フラグが伝播しない。
+#
+# 使い方:
+#   target_link_libraries(<your_target> PRIVATE sanitizer_flags)
 
 option(ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+
+add_library(sanitizer_flags INTERFACE)
 
 if(NOT ENABLE_SANITIZERS)
     return()
@@ -16,10 +22,10 @@ endif()
 
 message(STATUS "Sanitizers   : ASan + UBSan enabled (${CMAKE_CXX_COMPILER_ID})")
 
-add_compile_options(
+target_compile_options(sanitizer_flags INTERFACE
     -fsanitize=address,undefined
     -fno-omit-frame-pointer
     -g
     -O1
 )
-add_link_options(-fsanitize=address,undefined)
+target_link_options(sanitizer_flags INTERFACE -fsanitize=address,undefined)

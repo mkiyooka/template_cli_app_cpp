@@ -15,3 +15,4 @@ target_link_libraries(config_lib PUBLIC
     fkYAML_target
     fmt::fmt
 )
+target_link_libraries(config_lib PRIVATE sanitizer_flags)
