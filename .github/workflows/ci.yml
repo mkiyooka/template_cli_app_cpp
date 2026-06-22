@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CMAKE_BUILD_PARALLEL_LEVEL: "4"
+
+jobs:
+  # ===========================================================================
+  # Linux (メイン): GCC で build / test / asan、dev 環境で lint
+  # ===========================================================================
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          environments: default dev
+          cache: true
+
+      - name: Cache FetchContent
+        uses: actions/cache@v4
+        with:
+          path: _deps
+          key: fetchcontent-linux-${{ hashFiles('cmake/dependencies-*.cmake') }}
+          restore-keys: fetchcontent-linux-
+
+      - name: Configure
+        run: pixi run config
+
+      - name: Build
+        run: pixi run build
+
+      - name: Test
+        run: pixi run test
+
+      - name: ASan + UBSan
+        run: pixi run -e dev asan
+        env:
+          CMAKE_BUILD_PARALLEL_LEVEL: "2"
+
+      - name: Lint (clang-tidy)
+        run: pixi run -e dev lint
+
+      - name: Static analysis (cppcheck)
+        run: pixi run -e dev run-cppcheck
+
+  # ===========================================================================
+  # macOS: build / test のみ（補助的サポート）
+  # ===========================================================================
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          environments: default
+          cache: true
+
+      - name: Cache FetchContent
+        uses: actions/cache@v4
+        with:
+          path: _deps
+          key: fetchcontent-macos-${{ hashFiles('cmake/dependencies-*.cmake') }}
+          restore-keys: fetchcontent-macos-
+
+      - name: Configure
+        run: pixi run config
+
+      - name: Build
+        run: pixi run build
+
+      - name: Test
+        run: pixi run test
