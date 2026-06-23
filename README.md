@@ -151,6 +151,51 @@ CLI 引数・設定ファイル・デフォルト値を統合管理する。
 
 詳細は [docs/config-system.md](docs/config-system.md) および [docs/config-system-guide.md](docs/config-system-guide.md) を参照。
 
+## アーキテクチャ概要
+
+```text
+┌─────────────────────────────────────────────────────┐
+│ main.cpp                                            │
+│   └─ RunCli()                                       │
+│        ├─ BuildApp()       … オプション・サブコマンド登録  │
+│        ├─ app.parse()      … CLI11 パース              │
+│        ├─ ConfigManager    … 優先度解決                 │
+│        │    ├─ Resolve()        CLI > File > Default  │
+│        │    └─ GetFileValues()  スキーマ外フィールド      │
+│        ├─ MergeNonSchemaFields … plugins/subcommands  │
+│        ├─ Validate()       … バリデーション              │
+│        └─ Execute*()       … サブコマンド実行            │
+└─────────────────────────────────────────────────────┘
+         │                        │
+         ▼                        ▼
+┌─────────────────┐    ┌─────────────────────┐
+│ コマンド層       │    │ 設定システム          │
+│ command/         │    │ config/              │
+│  cli.cpp         │    │  ConfigManager       │
+│  subcommand.cpp  │    │  ConfigFileLoader    │
+│                  │    │  ConfigValidator     │
+│                  │    │  ConfigSchema        │
+└─────────────────┘    └─────────────────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+         ┌────────┐    ┌──────────┐    ┌──────────┐
+         │  TOML  │    │ JSON(C)  │    │   YAML   │
+         │ toml++ │    │nlohmann/ │    │  fkYAML  │
+         │        │    │  json    │    │          │
+         └────────┘    └──────────┘    └──────────┘
+
+┌─────────────────────────────────────────────────────┐
+│ 出力システム（汎用ライブラリ層・変更不要）               │
+│  Logger         … spdlog ベースのログ出力              │
+│  DataRecorder   … CSV / JSON Lines ファイル出力        │
+│  OutputContext  … Logger + Recorder の DI コンテナ     │
+│  JsonBuilder    … yyjson ベースの JSON 組み立て        │
+│                                                     │
+│  → 使用例: examples/example_output.cpp              │
+└─────────────────────────────────────────────────────┘
+```
+
 ## ディレクトリ構成
 
 - `src/` — アプリケーションソースコード
