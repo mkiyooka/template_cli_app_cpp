@@ -155,53 +155,11 @@ CLI 引数・設定ファイル・デフォルト値を統合管理する。
 
 ```mermaid
 flowchart TD
-    subgraph Entry["main.cpp → RunCli()"]
-        direction TB
-        B["BuildApp()
-        オプション・サブコマンド登録"]
-        P["app.parse()
-        CLI11 パース"]
-        R["ConfigManager::Resolve()
-        CLI > File > Default"]
-        M["MergeNonSchemaFields()
-        plugins / subcommands"]
-        V["Validate()
-        バリデーション"]
-        E["Execute*()
-        サブコマンド実行"]
-        B --> P --> R --> M --> V --> E
-    end
-
-    subgraph Command["コマンド層 — command/"]
-        C1["cli.cpp"]
-        C2["subcommand.cpp"]
-    end
-
-    subgraph Config["設定システム — config/"]
-        CM["ConfigManager"]
-        CFL["ConfigFileLoader"]
-        CV["ConfigValidator"]
-        CS["ConfigSchema"]
-    end
-
-    Entry --> Command
-    Entry --> Config
-
-    Config --> TOML["TOML
-    toml++"]
-    Config --> JSON["JSON·JSONC
-    nlohmann/json"]
-    Config --> YAML["YAML
-    fkYAML"]
-
-    subgraph Output["出力システム（汎用ライブラリ層・変更不要）"]
-        L["Logger — spdlog"]
-        DR["DataRecorder — CSV / JSON Lines"]
-        OC["OutputContext — DI コンテナ"]
-        JB["JsonBuilder — yyjson"]
-    end
-
-    Output -.- |"使用例: examples/example_output.cpp"| Entry
+    CLI["CLI — command/"] --> Config["設定システム — config/"]
+    CLI --> Exec["サブコマンド実行"]
+    Config --> |"TOML / JSON / YAML"| Files["設定ファイル"]
+    Config --> Validate["バリデーション"]
+    CLI -.-> Output["出力システム — logging / recording"]
 ```
 
 ## ディレクトリ構成
