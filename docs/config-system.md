@@ -102,7 +102,9 @@ Error: Multiple default config files found: config/default.toml config/default.j
 
 ## C++ 詳細設計
 
-### ファイル構成
+### ファイル構成とAPI
+
+#### ファイル依存関係
 
 ```mermaid
 graph LR
@@ -128,6 +130,108 @@ graph LR
     C --> G
     A --> H
 ```
+
+#### 各ファイルの役割とAPI
+
+##### `include/config/config_loader.hpp`
+
+**役割:** 設定値を保持するデータ構造の定義。他のヘッダが依存する基盤。
+
+| 型 | 説明 |
+| --- | --- |
+| `PluginConfig` | プラグイン1件の設定 (`file: string`, `number: uint64_t`) |
+| `SubcommandConfig` | サブコマンドのオペランド (`a: int`, `b: int`) |
+| `Config` | アプリ全体の設定値を保持するルート構造体 |
+| `SubcommandMapping` | サブコマンド名と `Config` メンバーポインタのペア |
+| `kSubcommandMappings[]` | `SubcommandMapping` の配列（`subcommand.cpp` で実体定義） |
+| `kSubcommandMappingCount` | 上記配列の要素数 |
+
+`Config` のフィールド:
+
+| フィールド | 型 | デフォルト値 |
+| --- | --- | --- |
+| `title` | `std::string` | `"title"` |
+| `value` | `std::uint64_t` | `10` |
+| `plugins` | `std::vector<PluginConfig>` | `{}` |
+| `add` / `subtract` / `multiply` / `divide` | `SubcommandConfig` | `{0, 0}` |
+
+---
+
+##### `include/config/config_schema.hpp`
+
+**役割:** スキーマ定義の一元管理。CLIオプション名・設定ファイルキー・`Config` メンバーポインタを紐づける。新オプション追加時にここだけ変更すれば CLI 登録・ファイル読み込みの両方が自動で対応される。
+
+| シンボル | 種別 | 説明 |
+| --- | --- | --- |
+| `FieldDescriptor<Owner, T>` | テンプレート構造体 | 1フィールド分の記述子。`cli_option` / `config_key` / `description` / `member` を保持 |
+| `FieldDescriptor(...)` (CTAD補助) | 推論ガイド | C++17 CTAD により型引数省略を可能にする |
+| `kConfigSchema` | `constexpr` タプル | 全スキーマフィールドを `std::tuple<FieldDescriptor...>` で列挙 |
+
+---
+
+##### `src/config/config_file_loader.hpp` / `config_file_loader.cpp`
+
+**役割:** 設定ファイルの読み込み実装。拡張子でフォーマットを自動判別し、`Config` に書き込む。
+
+公開API（`namespace config`）:
+
+| 関数 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `LoadFromFile` | `(const string& path, Config& conf) -> void` | 1ファイルを読み込んで `conf` に書き込む。拡張子 `.toml` / `.json` / `.yaml` / `.yml` に対応 |
+| `LoadFromFiles` | `(const vector<string>& paths, Config& conf) -> void` | 複数ファイルを順に読み込んで後勝ちマージ。`.conf` はマニフェストとして展開 |
+| `ExpandManifest` | `(const string& manifest_path) -> vector<string>` | `.conf` マニフェストを読み込み、相対パスをマニフェスト親ディレクトリ基準で解決して返す |
+| `FindDefaultConfig` | `() -> string` | `config/default.{toml,json,yaml}` を探索。複数存在する場合は例外 |
+
+内部実装（匿名 namespace）:
+
+| シンボル | 種別 | 説明 |
+| --- | --- | --- |
+| `ResolveDottedKey<Accessor, T, Node>` | テンプレート関数 | `"settings.value"` のようなドット区切りキーでネストを辿り `optional<T>` を返す |
+| `TomlAccessor` | 構造体 | `toml::table` 用の `GetChild` / `GetLeaf` |
+| `JsonAccessor` | 構造体 | `nlohmann::json` 用の `GetChild` / `GetLeaf` |
+| `YamlAccessor` | 構造体 | `fkyaml::node` 用の `GetChild` / `GetLeaf` |
+| `LoadFromToml` | 関数 | TOML ファイルを読み込んで `Config` に書き込む |
+| `LoadFromJson` | 関数 | JSON / JSONC ファイルを読み込んで `Config` に書き込む |
+| `LoadFromYaml` | 関数 | YAML ファイルを読み込んで `Config` に書き込む |
+
+---
+
+##### `include/config/config_manager.hpp` / `src/config/config_manager.cpp`
+
+**役割:** CLI11 へのオプション登録と、CLI引数・設定ファイル・デフォルト値の優先度解決を担うクラス。
+
+`ConfigManager` クラス（`namespace config`）:
+
+| メンバー | 種別 | 説明 |
+| --- | --- | --- |
+| `ConfigManager()` | コンストラクタ | `cli_values_` / `file_values_` をデフォルト初期化。`cli_set_` をスキーマサイズ分 `false` で初期化 |
+| `RegisterOptions(CLI::App& app)` | メソッド | `kConfigSchema` を展開して CLI11 にオプションを一括登録。各オプションに `each` コールバックを設定し、明示指定されたフィールドを `cli_set_` に記録 |
+| `Resolve(const vector<string>& config_paths)` | メソッド | 設定ファイルを読み込み、CLI引数 > 後方ファイル > 前方ファイル > デフォルトの優先度でスキーマフィールドを解決して返す。`config_paths` が空の場合は `FindDefaultConfig()` で自動探索 |
+| `GetFileValues()` | メソッド | `Resolve()` 後に有効な、ファイルから読み込んだ生の `Config` を返す。`plugins` などスキーマ外フィールドの取得に使用 |
+| `cli_values_` | `Config` | CLI11 のパース結果書き込み先 |
+| `file_values_` | `Config` | 設定ファイルから読み込んだ値 |
+| `cli_set_` | `vector<bool>` | スキーマの各フィールドが CLI で明示指定されたかを記録するフラグ配列 |
+
+---
+
+##### `include/config/config_validator.hpp` / `src/config/config_validator.cpp`
+
+**役割:** マージ後の `Config` を検証する。
+
+| 関数 | シグネチャ | 説明 |
+| --- | --- | --- |
+| `Validate` | `(const Config& config) -> string` | 正常時は空文字列、異常時はエラーメッセージを返す。検証項目: `title` が空でない、`divide.b == 0 && divide.a != 0` でない |
+
+---
+
+##### `src/command/subcommand.cpp`
+
+**役割:** `kSubcommandMappings` 配列の実体定義（`config_loader.hpp` で `extern` 宣言）。
+
+| シンボル | 説明 |
+| --- | --- |
+| `kSubcommandMappings[]` | サブコマンド名（`"add"`, `"subtract"` 等）と `Config` メンバーポインタのペア配列 |
+| `kSubcommandMappingCount` | 配列の要素数 |
 
 ### FieldDescriptor テンプレート
 
