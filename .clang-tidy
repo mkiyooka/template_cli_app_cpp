@@ -108,8 +108,3 @@ CheckOptions:
     # signed 変数を被演算子に使うケース（符号拡張の事故につながる）は検出したまま。
     - key: hicpp-signed-bitwise.IgnorePositiveIntegerLiterals
       value: true
-    # 値型のローカル変数に対する const 化提案は行わない。
-    # ループ変数を含むほぼ全てのローカル変数が対象になり指摘が過剰なため。
-    # 参照とポインタの const 解析は有効のまま（意図しない書き換えを検出できる）。
-    - key: misc-const-correctness.AnalyzeValues
-      value: false
