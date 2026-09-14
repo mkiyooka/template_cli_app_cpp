@@ -1,46 +1,38 @@
+# 有効にしているグループは広め。個別の無効化はすべて理由を添えること。
+# 注意: hicpp-* / cert-* の多くは他グループのエイリアス。
+#       片方だけ無効化しても、もう片方が有効なら警告は出続ける。
+#       無効化するときは対になるチェックも併せて無効化すること。
 Checks: >
     bugprone-*,
     -bugprone-easily-swappable-parameters,
     cert-*,
     clang-analyzer-*,
     cppcoreguidelines-*,
-    cppcoreguidelines-init-variables,
-    cppcoreguidelines-pro-type-member-init,
     -cppcoreguidelines-avoid-c-arrays,
     -cppcoreguidelines-avoid-magic-numbers,
     -cppcoreguidelines-avoid-non-const-global-variables,
     -cppcoreguidelines-pro-bounds-pointer-arithmetic,
     google-*,
-    google-explicit-constructor,
     -google-readability-todo,
     hicpp-*,
-    hicpp-explicit-conversions,
     -hicpp-avoid-c-arrays,
     llvm-*,
-    llvm-include-order,
     -llvm-header-guard,
     -llvm-prefer-static-over-anonymous-namespace,
     misc-*,
     -misc-include-cleaner,
+    -misc-no-recursion,
     -misc-use-anonymous-namespace,
     -misc-use-internal-linkage,
     modernize-*,
-    modernize-use-default-member-init,
     -modernize-avoid-c-arrays,
     -modernize-loop-convert,
     -modernize-use-nodiscard,
     -modernize-use-trailing-return-type,
     performance-*,
-    performance-avoid-endl,
-    performance-unnecessary-copy-initialization,
-    performance-unnecessary-value-param,
     portability-*,
     -portability-avoid-pragma-once,
     readability-*,
-    readability-make-member-function-const,
-    readability-non-const-parameter,
-    readability-simplify-boolean-expr,
-    readability-uppercase-literal-suffix,
     -readability-convert-member-functions-to-static,
     -readability-identifier-length,
     -readability-magic-numbers,
@@ -111,3 +103,13 @@ CheckOptions:
       value: 1
     - key: cppcoreguidelines-avoid-do-while.IgnoreMacros
       value: true
+    # ビット演算の被演算子が正の整数リテラルの場合は許容する。
+    # 0x0F のようなマスク定数に毎回 U 接尾辞を付ける必要がなくなる。
+    # signed 変数を被演算子に使うケース（符号拡張の事故につながる）は検出したまま。
+    - key: hicpp-signed-bitwise.IgnorePositiveIntegerLiterals
+      value: true
+    # 値型のローカル変数に対する const 化提案は行わない。
+    # ループ変数を含むほぼ全てのローカル変数が対象になり指摘が過剰なため。
+    # 参照とポインタの const 解析は有効のまま（意図しない書き換えを検出できる）。
+    - key: misc-const-correctness.AnalyzeValues
+      value: false
