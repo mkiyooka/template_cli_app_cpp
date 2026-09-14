@@ -9,6 +9,8 @@ tag_format = "v$version"
 version_scheme = "semver2"
 update_changelog_on_bump = true
 major_version_zero = true
+# cz bump 時に CMakeLists.txt の project(VERSION ...) も同時に書き換える
+version_files = ["CMakeLists.txt:^\\s*VERSION"]
 
 # conventional-commit-types拡張設定
 [tool.commitizen.customize]
@@ -17,11 +19,26 @@ example = "feat(parser): add ability to parse arrays"
 schema = "<type>(<scope>): <subject>\n<BLANK LINE>\n<body>\n<BLANK LINE>\n<footer>"
 schema_pattern = "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([a-zA-Z0-9_-]+\\))?!?:\\s.+$"
 bump_pattern = "^(BREAKING CHANGE|feat|fix)"
+# changelog: 件名（1 行目）だけを拾い、種類ごとに見出しを分ける。
+# 未指定だと本文の各行まで箇条書きに展開されてしまう
+changelog_pattern = "^(feat|fix|perf|refactor|docs|build|test|chore|revert)(\\(.*\\))?(!)?:"
+commit_parser = "^(?P<change_type>feat|fix|perf|refactor|docs|build|test|chore|revert)(?:\\((?P<scope>[^()\\r\\n]*)\\))?(?P<breaking>!)?:\\s(?P<message>[^\\r\\n]*)"
 
 [tool.commitizen.customize.bump_map]
 "BREAKING CHANGE" = "MAJOR"
 "feat" = "MINOR"
 "fix" = "PATCH"
+
+[tool.commitizen.customize.change_type_map]
+"feat" = "Features"
+"fix" = "Bug Fixes"
+"perf" = "Performance"
+"refactor" = "Refactoring"
+"docs" = "Documentation"
+"build" = "Build System"
+"test" = "Tests"
+"chore" = "Chores"
+"revert" = "Reverts"
 
 [[tool.commitizen.customize.questions]]
 type = "list"

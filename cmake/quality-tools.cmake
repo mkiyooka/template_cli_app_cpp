@@ -6,6 +6,18 @@
 # 通常のfind_programでpixi環境のツールが優先的に発見される。
 # ただし、find_programはキャッシュするため2回目以降の実行では最初の結果が使われる。
 # キャッシュをリセットしたい場合は build ディレクトリを削除して再設定すること。
+# ツール未検出の報告。
+# 品質ツールは pixi の dev 環境（pixi install -e dev）でのみ導入されるため、
+# default 環境で見つからないのは正常。dev 環境（PIXI_ENVIRONMENT_NAME=dev）で
+# 見つからない場合のみ WARNING にし、それ以外は導入方法を添えた STATUS に留める。
+function(_report_missing_quality_tool label)
+    if("$ENV{PIXI_ENVIRONMENT_NAME}" STREQUAL "dev")
+        message(WARNING "  ${label}: NOT FOUND (expected in the pixi dev environment)")
+    else()
+        message(STATUS "  ${label}: not found (install with: pixi install -e dev)")
+    endif()
+endfunction()
+
 function(setup_quality_tools)
     # clang-format
     find_program(CLANG_FORMAT_EXE NAMES clang-format)
@@ -21,19 +33,19 @@ function(setup_quality_tools)
     if(CLANG_FORMAT_EXE)
         message(STATUS "  clang-format : ${CLANG_FORMAT_EXE}")
     else()
-        message(WARNING "  clang-format : NOT FOUND")
+        _report_missing_quality_tool("clang-format")
     endif()
 
     if(CLANG_TIDY_EXE)
         message(STATUS "  clang-tidy   : ${CLANG_TIDY_EXE}")
     else()
-        message(WARNING "  clang-tidy   : NOT FOUND")
+        _report_missing_quality_tool("clang-tidy  ")
     endif()
 
     if(CPPCHECK_EXE)
         message(STATUS "  cppcheck     : ${CPPCHECK_EXE}")
     else()
-        message(WARNING "  cppcheck     : NOT FOUND")
+        _report_missing_quality_tool("cppcheck    ")
     endif()
 
     # Set variables for parent scope
@@ -79,15 +91,20 @@ function(setup_quality_targets SOURCE_FILES COMPILABLE_SOURCE_FILES)
 
         if(RUN_CLANG_TIDY_EXE)
             # Parallel execution with run-clang-tidy
-            include(ProcessorCount)
-            ProcessorCount(N)
-            if(NOT N EQUAL 0)
-                math(EXPR LINT_JOBS "${N} / 2")  # Use half of available cores
-                if(LINT_JOBS LESS 1)
-                    set(LINT_JOBS 1)
+            # clang-tidy は 1 プロセスあたり数百 MB 使うため、メモリの少ない環境では
+            # -DLINT_JOBS=1 のように configure 時に明示指定して抑えられるようにする
+            set(LINT_JOBS "" CACHE STRING "clang-tidy の並列実行数（空なら CPU 数の半分）")
+            if(NOT LINT_JOBS)
+                include(ProcessorCount)
+                ProcessorCount(N)
+                if(NOT N EQUAL 0)
+                    math(EXPR LINT_JOBS "${N} / 2")  # Use half of available cores
+                    if(LINT_JOBS LESS 1)
+                        set(LINT_JOBS 1)
+                    endif()
+                else()
+                    set(LINT_JOBS 4)
                 endif()
-            else()
-                set(LINT_JOBS 4)
             endif()
 
             add_custom_target(lint

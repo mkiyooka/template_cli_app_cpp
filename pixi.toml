@@ -5,9 +5,6 @@ description = "C++ Development Environment"
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 
-[activation]
-scripts = ["context/setup.sh"]
-
 [activation.env]
 LD_LIBRARY_PATH = "${PIXI_PROJECT_ROOT}/lib:$LD_LIBRARY_PATH"
 
@@ -100,6 +97,9 @@ cmake --build build-asan --target clean || true &&
 cmake --build build-coverage --target clean || true
 """
 
+# ---- quality ----
+# format / lint / run-cppcheck / typos / fullcheck は dev 環境のタスク。
+#   pixi install -e dev && pixi run -e dev fullcheck
 
 # ---- sanitizer workflow ----
 asan = """

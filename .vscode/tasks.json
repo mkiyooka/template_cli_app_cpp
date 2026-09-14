@@ -53,7 +53,7 @@
             "label": "format",
             "type": "shell",
             "command": "pixi",
-            "args": ["run", "format"],
+            "args": ["run", "-e", "dev", "format"],
             "group": "build",
             "detail": "clang-format でコード整形",
             "problemMatcher": []
@@ -62,7 +62,7 @@
             "label": "lint",
             "type": "shell",
             "command": "pixi",
-            "args": ["run", "lint"],
+            "args": ["run", "-e", "dev", "lint"],
             "group": "build",
             "detail": "clang-tidy で静的解析",
             "problemMatcher": []
@@ -71,7 +71,7 @@
             "label": "cppcheck",
             "type": "shell",
             "command": "pixi",
-            "args": ["run", "run-cppcheck"],
+            "args": ["run", "-e", "dev", "run-cppcheck"],
             "group": "build",
             "detail": "cppcheck で静的解析",
             "problemMatcher": []
@@ -80,7 +80,7 @@
             "label": "fullcheck",
             "type": "shell",
             "command": "pixi",
-            "args": ["run", "fullcheck"],
+            "args": ["run", "-e", "dev", "fullcheck"],
             "group": "build",
             "detail": "typos + lint + cppcheck をまとめて実行",
             "problemMatcher": []
@@ -89,7 +89,7 @@
             "label": "asan (config + build + test)",
             "type": "shell",
             "command": "pixi",
-            "args": ["run", "asan"],
+            "args": ["run", "-e", "dev", "asan"],
             "group": "test",
             "detail": "ASan + UBSan ビルドとテスト（build-asan/）",
             "problemMatcher": ["$gcc"]
@@ -98,7 +98,7 @@
             "label": "coverage (config + run + report)",
             "type": "shell",
             "command": "pixi",
-            "args": ["run", "coverage"],
+            "args": ["run", "-e", "dev", "coverage"],
             "group": "test",
             "detail": "カバレッジ計測・HTML レポート生成（build-coverage/）",
             "problemMatcher": []

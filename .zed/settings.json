@@ -56,6 +56,9 @@
         "**/.classpath",
         "**/.settings",
         "**/build",
+        "**/build-asan",
+        "**/build-coverage",
+        "**/_deps",
         "**/.pixi",
         "**/.venv",
         "**/.nox",
@@ -66,6 +69,7 @@
         "**/wheelhouse",
         "**/.cache",
         "**/third_party",
+        "**/ext",
         "**/CMakeFiles",
     ],
 

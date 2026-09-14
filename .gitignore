@@ -208,6 +208,12 @@ debug/
 # FetchContent shared source cache (build / build-asan / build-coverage 共有)
 /_deps/
 
+# Local override for FetchContent (cmake/local-or-fetch.cmake が参照する)
+# .clang-tidy だけは品質ツールの除外設定として追跡する
+/ext/
+/third_party/*
+!/third_party/.clang-tidy
+
 # Other files to ignore
 .DS_Store
 *.swp

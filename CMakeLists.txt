@@ -107,8 +107,11 @@ include(cmake/coverage-flags.cmake)
 # FETCHCONTENT_BASE_DIR をプロジェクトルート直下の _deps に固定することで
 # build / build-asan / build-coverage 間でダウンロード・展開済みソースを共有し
 # 各プリセットの初回 configure 時の再ダウンロードを防ぐ
-set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/_deps" CACHE PATH
-    "FetchContent shared source cache" FORCE)
+# （サブプロジェクトとして取り込まれた場合は取り込み側の設定を尊重する）
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/_deps" CACHE PATH
+        "FetchContent shared source cache")
+endif()
 include(FetchContent)
 include(cmake/local-or-fetch.cmake)
 include(cmake/dependencies-app.cmake)
@@ -214,8 +217,8 @@ endif()
 include(CTest)
 
 configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake/CTestCustom.cmake.in
-    ${CMAKE_BINARY_DIR}/CTestCustom.cmake
+    ${PROJECT_SOURCE_DIR}/cmake/CTestCustom.cmake.in
+    ${PROJECT_BINARY_DIR}/CTestCustom.cmake
     @ONLY
 )
 
@@ -224,9 +227,13 @@ add_subdirectory(benches)
 add_subdirectory(examples)
 
 # カスタムターゲット
+set(SHOW_HELP_MAIN_TARGETS
+    "cmd                   - Main CLI application"
+)
 include(cmake/custom-targets.cmake)
 
-# カバレッジ
+# カバレッジ（COVERAGE_TEST_TARGETS に実行するテストバイナリを指定する）
+set(COVERAGE_TEST_TARGETS test_config_manager test_doctest_usage test_csv_wrapper test_yyjson_wrapper)
 include(cmake/coverage.cmake)
 
 # コード品質ツール
@@ -237,13 +244,19 @@ include(cmake/quality-setup.cmake)
 # ==============================================================================
 
 # サードパーティライブラリのライセンス集約
-add_custom_target(collect-licenses
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/third_party_licenses"
-
-    # FetchContentで取得したライブラリのライセンス
-    COMMAND ${CMAKE_COMMAND} -E echo "Collecting FetchContent package licenses..."
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake/collect-fetchcontent-licenses.cmake
-
-    COMMENT "Collecting third-party library licenses"
-)
+# FetchContent 経由で取り込まれた場合、取り込み側にも同名ターゲットがあると衝突するため
+# トップレベルビルドのときだけ定義する。
+# 取り込んだライブラリ側（このガードが入る前のバージョン）が既に同名ターゲットを
+# 定義しているケースもあるため NOT TARGET も併せて確認する。
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR AND NOT TARGET collect-licenses)
+    add_custom_target(collect-licenses
+        # FetchContent で取得したライブラリのライセンス
+        COMMAND ${CMAKE_COMMAND} -E echo "Collecting FetchContent package licenses..."
+        COMMAND ${CMAKE_COMMAND}
+            -DDEPS_DIR=${FETCHCONTENT_BASE_DIR}
+            -DOUTPUT_DIR=${CMAKE_BINARY_DIR}/third_party_licenses
+            -P ${PROJECT_SOURCE_DIR}/cmake/collect-fetchcontent-licenses.cmake
+        COMMENT "Collecting third-party library licenses"
+    )
+endif()
 

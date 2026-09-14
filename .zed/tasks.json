@@ -35,37 +35,37 @@
     {
         "label": "clang-format",
         "command": "pixi",
-        "args": ["run", "format"],
+        "args": ["run", "-e", "dev", "format"],
         "tags": ["format"],
     },
     {
         "label": "clang-tidy",
         "command": "pixi",
-        "args": ["run", "lint"],
+        "args": ["run", "-e", "dev", "lint"],
         "tags": ["lint"],
     },
     {
         "label": "cppcheck",
         "command": "pixi",
-        "args": ["run", "run-cppcheck"],
+        "args": ["run", "-e", "dev", "run-cppcheck"],
         "tags": ["lint"],
     },
     {
         "label": "fullcheck (C++)",
         "command": "pixi",
-        "args": ["run", "fullcheck"],
+        "args": ["run", "-e", "dev", "fullcheck"],
         "tags": ["lint"],
     },
     {
         "label": "asan (config + build + test)",
         "command": "pixi",
-        "args": ["run", "asan"],
+        "args": ["run", "-e", "dev", "asan"],
         "tags": ["test"],
     },
     {
         "label": "coverage (config + run + report)",
         "command": "pixi",
-        "args": ["run", "coverage"],
+        "args": ["run", "-e", "dev", "coverage"],
         "tags": ["test"],
     },
 ]

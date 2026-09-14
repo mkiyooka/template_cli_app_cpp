@@ -8,7 +8,9 @@
 
 option(ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
 
-add_library(sanitizer_flags INTERFACE)
+if(NOT TARGET sanitizer_flags)
+    add_library(sanitizer_flags INTERFACE)
+endif()
 
 if(NOT ENABLE_SANITIZERS)
     return()

@@ -8,6 +8,7 @@ add_executable(example_csv_wrapper
 target_link_libraries(example_csv_wrapper PRIVATE
     csv
     tl::expected
+    PRIVATE sanitizer_flags
 )
 
 # JSON wrapper example
@@ -16,6 +17,7 @@ add_executable(example_json_wrapper
 )
 target_link_libraries(example_json_wrapper PRIVATE
     yyjson
+    PRIVATE sanitizer_flags
 )
 
 # compat layer example (expected + span)
@@ -28,5 +30,6 @@ target_include_directories(example_compat PRIVATE
 target_link_libraries(example_compat PRIVATE
     tl::expected
     tcb_span_target
+    PRIVATE sanitizer_flags
 )
 

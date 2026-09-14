@@ -15,7 +15,7 @@
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
 
     /* clangd settings */
-    "clangd.path": "${workspaceFolder}/.pixi/envs/default/bin/clangd",
+    "clangd.path": "${workspaceFolder}/.pixi/envs/dev/bin/clangd",
     "clangd.arguments": [
         "--background-index",
         "--clang-tidy",
@@ -110,8 +110,12 @@
         "**/third_party": true,
         "**/external": true,
         "**/ext": true,
+        "**/_deps": true,
         // C++ build artifacts
         "**/.pixi": true,
+        "**/build": true,
+        "**/build-asan": true,
+        "**/build-coverage": true,
         "**/.cache": true,
         "**/*.o": true,
         "**/*.obj": true,
@@ -127,8 +131,12 @@
         "**/third_party": true,
         "**/external": true,
         "**/ext": true,
+        "**/_deps": true,
         // C++ build artifacts
         "**/.pixi": true,
+        "**/build": true,
+        "**/build-asan": true,
+        "**/build-coverage": true,
         "**/.cache": true,
         "**/CMakeFiles": true
     },
