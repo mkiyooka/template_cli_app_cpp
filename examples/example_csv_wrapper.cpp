@@ -1,6 +1,8 @@
 #include <template_cli_app_cpp/utility/csv_wrapper.hpp>
 
 #include <array>
+#include <cstdlib>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -19,7 +21,8 @@ constexpr std::array<const char *, 5> kCategories = {"A", "B", "C", "D", "E"};
 
 std::filesystem::path GenerateSampleCsv(int num_rows) {
     const auto path = std::filesystem::temp_directory_path() / "example_csv_wrapper.csv";
-    std::mt19937_64 rng(42);
+    // 再現可能なデータにするため固定シードを使う
+    std::mt19937_64 rng(42); // NOLINT(cert-msc32-c,cert-msc51-cpp)
     std::uniform_real_distribution<double> value_dist(0.0, 1000.0);
     std::uniform_int_distribution<int> cat_dist(0, 4);
     std::bernoulli_distribution flag_dist(0.10);
@@ -27,22 +30,21 @@ std::filesystem::path GenerateSampleCsv(int num_rows) {
     std::ofstream ofs(path);
     ofs << "id,category,value_a,value_b,flag\n";
     for (int i = 0; i < num_rows; ++i) {
-        ofs << i << ','
-            << kCategories[static_cast<size_t>(cat_dist(rng))] << ','
-            << value_dist(rng) << ','
-            << value_dist(rng) << ','
-            << (flag_dist(rng) ? 1 : 0) << '\n';
+        ofs << i << ',' << kCategories.at(static_cast<size_t>(cat_dist(rng))) << ',' << value_dist(rng) << ','
+            << value_dist(rng) << ',' << (flag_dist(rng) ? 1 : 0) << '\n';
     }
     return path;
 }
 
 } // namespace
 
-int main() {
+namespace {
+
+int Run() {
     constexpr int kNumRows = 1000;
     const auto path = GenerateSampleCsv(kNumRows);
 
-    utility::CsvReader reader(path.string());
+    const utility::CsvReader reader(path.string());
 
     // ── ReadFiltered: flag==1 の行から value_a, value_b を double で取得 ──
     auto predicate = [](const csv::CSVRow &row) {
@@ -77,4 +79,17 @@ int main() {
 
     std::filesystem::remove(path);
     return 0;
+}
+
+} // namespace
+
+int main() {
+    try {
+        return Run();
+    } catch (const std::exception &e) {
+        std::cerr << "error: " << e.what() << '\n';
+    } catch (...) {
+        std::cerr << "error: unknown exception\n";
+    }
+    return EXIT_FAILURE;
 }

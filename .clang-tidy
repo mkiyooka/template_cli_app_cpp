@@ -39,7 +39,11 @@ Checks: >
 
 WarningsAsErrors: ""
 FormatStyle: file
-HeaderFilterRegex: "^./(src|debug|include|tests)/"
+# プロジェクト内のヘッダをすべて検査し、依存ライブラリ・生成物は除外する。
+# リポジトリ名やディレクトリ構成に依存しない形にしている。
+# （ExcludeHeaderFilterRegex は clang-tidy 19 以降で使えるキー）
+HeaderFilterRegex: '.*'
+ExcludeHeaderFilterRegex: '.*/(_deps|third_party|ext|\.pixi|build[^/]*)/.*'
 SystemHeaders: false
 CheckOptions:
     - key: readability-identifier-naming.ClassCase
@@ -107,4 +111,9 @@ CheckOptions:
     # 0x0F のようなマスク定数に毎回 U 接尾辞を付ける必要がなくなる。
     # signed 変数を被演算子に使うケース（符号拡張の事故につながる）は検出したまま。
     - key: hicpp-signed-bitwise.IgnorePositiveIntegerLiterals
+      value: true
+    # misc-non-private-member-variables-in-classes は cppcoreguidelines-non-private-member-variables-in-classes の
+    # エイリアスだが、既定値が異なり全メンバ public の struct まで指摘する。
+    # C++ Core Guidelines（C.2: 不変条件のないデータは struct）に合わせ、cppcoreguidelines 側と同じ挙動にする。
+    - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
       value: true

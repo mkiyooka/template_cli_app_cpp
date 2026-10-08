@@ -9,19 +9,22 @@
 
 #include <cmath>
 #include <numeric>
+#include <stdexcept>
 #include <vector>
 
 #include <doctest/doctest.h>
 
 // ─── テスト対象のインライン定義 ──────────────────────────────────────────────
 
-namespace {
+// ヘッダ内の無名名前空間は include した翻訳単位ごとに別実体を作るため使わない（cert-dcl59-cpp）。
+// 名前付き名前空間 + inline 関数にする。
+namespace doctest_sample {
 
 // 2倍にする関数（浮動小数点比較サンプル用）
-double DoubleIt(double x) { return x * 2.0; }
+inline double DoubleIt(double x) { return x * 2.0; }
 
 // start から count 個の連続整数を返す（コンテナ比較サンプル用）
-std::vector<int> MakeRange(int start, int count) {
+inline std::vector<int> MakeRange(int start, int count) {
     std::vector<int> result(count);
     std::iota(result.begin(), result.end(), start);
     return result;
@@ -37,15 +40,15 @@ private:
     int divisor_;
 };
 
-} // namespace
+} // namespace doctest_sample
 
 // ─── サンプル: 浮動小数点比較（doctest::Approx） ─────────────────────────────
 
 TEST_CASE("floating-point comparison with doctest::Approx") {
     SUBCASE("basic double comparison") {
-        CHECK(DoubleIt(2.5) == doctest::Approx(5.0));
-        CHECK(DoubleIt(0.0) == doctest::Approx(0.0));
-        CHECK(DoubleIt(-1.5) == doctest::Approx(-3.0));
+        CHECK(doctest_sample::DoubleIt(2.5) == doctest::Approx(5.0));
+        CHECK(doctest_sample::DoubleIt(0.0) == doctest::Approx(0.0));
+        CHECK(doctest_sample::DoubleIt(-1.5) == doctest::Approx(-3.0));
     }
 
     SUBCASE("Approx with custom epsilon") {
@@ -58,18 +61,18 @@ TEST_CASE("floating-point comparison with doctest::Approx") {
 
 TEST_CASE("container comparison") {
     SUBCASE("equal vectors") {
-        const auto result = MakeRange(1, 5);
+        const auto result = doctest_sample::MakeRange(1, 5);
         const std::vector<int> expected = {1, 2, 3, 4, 5};
         CHECK(result == expected);
     }
 
     SUBCASE("empty vector") {
-        const auto result = MakeRange(0, 0);
+        const auto result = doctest_sample::MakeRange(0, 0);
         CHECK(result.empty());
     }
 
     SUBCASE("negative start") {
-        const auto result = MakeRange(-2, 3);
+        const auto result = doctest_sample::MakeRange(-2, 3);
         const std::vector<int> expected = {-2, -1, 0};
         CHECK(result == expected);
     }
@@ -78,7 +81,7 @@ TEST_CASE("container comparison") {
 // ─── サンプル: クラスとメソッドのテスト ─────────────────────────────────────
 
 TEST_CASE("class method test") {
-    const Modulo mod7(7);
+    const doctest_sample::Modulo mod7(7);
 
     SUBCASE("basic remainder") { CHECK(mod7.Remainder(15) == 1); }
 

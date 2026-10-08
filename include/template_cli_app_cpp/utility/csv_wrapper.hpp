@@ -1,8 +1,8 @@
 #pragma once
 #include <csv.hpp>
-#include <template_cli_app_cpp/compat/expected.hpp>
 #include <functional>
 #include <string>
+#include <template_cli_app_cpp/compat/expected.hpp>
 #include <vector>
 
 namespace utility {
@@ -57,8 +57,8 @@ public:
      *         失敗時: エラーメッセージ文字列
      */
     compat::expected<std::vector<double>, std::string> ReadFiltered(
-        std::function<bool(const csv::CSVRow &)> predicate,
-        const std::vector<std::string> &output_cols) const {
+        const std::function<bool(const csv::CSVRow &)> &predicate, const std::vector<std::string> &output_cols
+    ) const {
         csv::CSVReader csv_reader(path_);
         auto indices_result = ResolveIndices(csv_reader, output_cols);
         if (!indices_result) {
@@ -68,7 +68,7 @@ public:
         std::vector<double> result;
         for (auto &row : csv_reader) {
             if (predicate(row)) {
-                for (int idx : indices) {
+                for (const int idx : indices) {
                     result.push_back(row[idx].get<double>());
                 }
             }
@@ -92,8 +92,8 @@ public:
      *         失敗時: エラーメッセージ文字列
      */
     compat::expected<std::vector<std::string>, std::string> ReadFilteredAsStrings(
-        std::function<bool(const csv::CSVRow &)> predicate,
-        const std::vector<std::string> &output_cols) const {
+        const std::function<bool(const csv::CSVRow &)> &predicate, const std::vector<std::string> &output_cols
+    ) const {
         csv::CSVReader csv_reader(path_);
         auto indices_result = ResolveIndices(csv_reader, output_cols);
         if (!indices_result) {
@@ -103,7 +103,7 @@ public:
         std::vector<std::string> result;
         for (auto &row : csv_reader) {
             if (predicate(row)) {
-                for (int idx : indices) {
+                for (const int idx : indices) {
                     result.emplace_back(row[idx].get<csv::string_view>());
                 }
             }
@@ -125,9 +125,9 @@ public:
      * @return 成功時: void、失敗時: エラーメッセージ文字列
      */
     compat::expected<void, std::string> ReadFiltered(
-        std::function<bool(const csv::CSVRow &)> predicate,
-        const std::vector<std::string> &output_cols,
-        std::vector<double> &out) const {
+        const std::function<bool(const csv::CSVRow &)> &predicate, const std::vector<std::string> &output_cols,
+        std::vector<double> &out
+    ) const {
         csv::CSVReader csv_reader(path_);
         auto indices_result = ResolveIndices(csv_reader, output_cols);
         if (!indices_result) {
@@ -137,7 +137,7 @@ public:
         out.clear();
         for (auto &row : csv_reader) {
             if (predicate(row)) {
-                for (int idx : indices) {
+                for (const int idx : indices) {
                     out.push_back(row[idx].get<double>());
                 }
             }
@@ -159,9 +159,9 @@ public:
      * @return 成功時: void、失敗時: エラーメッセージ文字列
      */
     compat::expected<void, std::string> ReadFilteredAsStrings(
-        std::function<bool(const csv::CSVRow &)> predicate,
-        const std::vector<std::string> &output_cols,
-        std::vector<std::string> &out) const {
+        const std::function<bool(const csv::CSVRow &)> &predicate, const std::vector<std::string> &output_cols,
+        std::vector<std::string> &out
+    ) const {
         csv::CSVReader csv_reader(path_);
         auto indices_result = ResolveIndices(csv_reader, output_cols);
         if (!indices_result) {
@@ -171,7 +171,7 @@ public:
         out.clear();
         for (auto &row : csv_reader) {
             if (predicate(row)) {
-                for (int idx : indices) {
+                for (const int idx : indices) {
                     out.emplace_back(row[idx].get<csv::string_view>());
                 }
             }
@@ -192,7 +192,7 @@ private:
         std::vector<int> indices;
         indices.reserve(cols.size());
         for (const auto &col : cols) {
-            int idx = csv_reader.index_of(col);
+            const int idx = csv_reader.index_of(col);
             if (idx < 0) {
                 return compat::unexpected<std::string>(
                     "utility::CsvReader: column not found: " + col);

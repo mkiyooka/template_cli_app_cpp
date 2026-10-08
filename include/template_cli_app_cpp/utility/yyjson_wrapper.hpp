@@ -215,7 +215,8 @@ private:
         } else if constexpr (std::is_same_v<D, std::string>) {
             yyjson_mut_obj_add_strcpy(doc_, obj, key, value.c_str());
         } else if constexpr (std::is_same_v<D, const char *> || std::is_same_v<D, char *>) {
-            yyjson_mut_obj_add_strcpy(doc_, obj, key, value);
+            // 文字列リテラル（char[N]）の場合は配列からポインタへの変換を明示する
+            yyjson_mut_obj_add_strcpy(doc_, obj, key, static_cast<const char *>(value));
         } else if constexpr (std::is_same_v<D, std::vector<int>>) {
             AddArray<int>(obj, key, value);
         } else if constexpr (std::is_same_v<D, std::vector<std::string>>) {

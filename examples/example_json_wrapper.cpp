@@ -1,10 +1,14 @@
 #include <template_cli_app_cpp/utility/yyjson_wrapper.hpp>
 
+#include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <string>
 #include <vector>
 
-int main() {
+namespace {
+
+int Run() {
     // ── フラットオブジェクト ──────────────────────────────────────
     {
         utility::JsonBuilder builder;
@@ -71,4 +75,17 @@ int main() {
     }
 
     return 0;
+}
+
+} // namespace
+
+int main() {
+    try {
+        return Run();
+    } catch (const std::exception &e) {
+        std::cerr << "error: " << e.what() << '\n';
+    } catch (...) {
+        std::cerr << "error: unknown exception\n";
+    }
+    return EXIT_FAILURE;
 }

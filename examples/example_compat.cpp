@@ -31,30 +31,30 @@ double Mean(compat::span<const double> values) {
 
 int main() {
     // compat::expected の使用例
-    std::cout << "=== compat::expected ===" << std::endl;
+    std::cout << "=== compat::expected ===" << '\n';
 
     const auto ok = SafeDivide(10.0, 3.0);
     if (ok) {
-        std::cout << "10 / 3 = " << *ok << std::endl;
+        std::cout << "10 / 3 = " << *ok << '\n';
     }
 
     const auto err = SafeDivide(10.0, 0.0);
     if (!err) {
-        std::cout << "10 / 0 => error: " << err.error() << std::endl;
+        std::cout << "10 / 0 => error: " << err.error() << '\n';
     }
 
     // compat::span の使用例
-    std::cout << "\n=== compat::span ===" << std::endl;
+    std::cout << "\n=== compat::span ===" << '\n';
 
     const std::vector<double> data = {1.0, 2.0, 3.0, 4.0, 5.0};
 
-    std::cout << "sum  = " << Sum(data) << std::endl;
-    std::cout << "mean = " << Mean(data) << std::endl;
+    std::cout << "sum  = " << Sum(data) << '\n';
+    std::cout << "mean = " << Mean(data) << '\n';
 
     // span でサブレンジを渡す
     const compat::span<const double> sub(data.data() + 1, 3);
-    std::cout << "sub[1..4) sum  = " << Sum(sub) << std::endl;
-    std::cout << "sub[1..4) mean = " << Mean(sub) << std::endl;
+    std::cout << "sub[1..4) sum  = " << Sum(sub) << '\n';
+    std::cout << "sub[1..4) mean = " << Mean(sub) << '\n';
 
     return 0;
 }

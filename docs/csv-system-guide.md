@@ -158,7 +158,7 @@ csv-parser の `row["name"]` は毎行 `std::unordered_map` の探索を行う�
 D 方式は `std::function` / `std::vector<int>` の間接コストをゼロにする代わりに、
 フィルタ条件・列インデックスをコード中に直書きする必要がある。
 実測での A 比の改善は 5列で +7.1%、31列で +3.5% であり、汎用性の高い API 設計を優先した。
-極限までスループットを追求する場合は `bench_csv.cpp` の `ReadFiltered_Hardcoded` を
+極限までスループットを追求する場合は `bench_csv.cpp` の `ReadFilteredHardcoded` を
 参考にして直接実装することを検討する。
 
 ---

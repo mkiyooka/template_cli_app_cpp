@@ -1,13 +1,49 @@
 # コード品質ツールのセットアップ
 
 # Collect source files for quality tools
+# src / tests / examples / benches / tools を対象にする（存在しないディレクトリは空になるだけ）。
+# 以前は src / tests のみで、examples / benches と tests 配下のヘッダは検査されていなかった。
 file(GLOB_RECURSE ALL_SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/*.c
     ${PROJECT_SOURCE_DIR}/src/**/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/*.c
     ${PROJECT_SOURCE_DIR}/src/**/*.c
+    ${PROJECT_SOURCE_DIR}/src/*.hpp
+    ${PROJECT_SOURCE_DIR}/src/**/*.hpp
+    ${PROJECT_SOURCE_DIR}/src/*.h
+    ${PROJECT_SOURCE_DIR}/src/**/*.h
     ${PROJECT_SOURCE_DIR}/tests/*.cpp
     ${PROJECT_SOURCE_DIR}/tests/**/*.cpp
+    ${PROJECT_SOURCE_DIR}/tests/*.c
+    ${PROJECT_SOURCE_DIR}/tests/**/*.c
+    ${PROJECT_SOURCE_DIR}/tests/*.hpp
+    ${PROJECT_SOURCE_DIR}/tests/**/*.hpp
+    ${PROJECT_SOURCE_DIR}/tests/*.h
+    ${PROJECT_SOURCE_DIR}/tests/**/*.h
+    ${PROJECT_SOURCE_DIR}/examples/*.cpp
+    ${PROJECT_SOURCE_DIR}/examples/**/*.cpp
+    ${PROJECT_SOURCE_DIR}/examples/*.c
+    ${PROJECT_SOURCE_DIR}/examples/**/*.c
+    ${PROJECT_SOURCE_DIR}/examples/*.hpp
+    ${PROJECT_SOURCE_DIR}/examples/**/*.hpp
+    ${PROJECT_SOURCE_DIR}/examples/*.h
+    ${PROJECT_SOURCE_DIR}/examples/**/*.h
+    ${PROJECT_SOURCE_DIR}/benches/*.cpp
+    ${PROJECT_SOURCE_DIR}/benches/**/*.cpp
+    ${PROJECT_SOURCE_DIR}/benches/*.c
+    ${PROJECT_SOURCE_DIR}/benches/**/*.c
+    ${PROJECT_SOURCE_DIR}/benches/*.hpp
+    ${PROJECT_SOURCE_DIR}/benches/**/*.hpp
+    ${PROJECT_SOURCE_DIR}/benches/*.h
+    ${PROJECT_SOURCE_DIR}/benches/**/*.h
+    ${PROJECT_SOURCE_DIR}/tools/*.cpp
+    ${PROJECT_SOURCE_DIR}/tools/**/*.cpp
+    ${PROJECT_SOURCE_DIR}/tools/*.c
+    ${PROJECT_SOURCE_DIR}/tools/**/*.c
+    ${PROJECT_SOURCE_DIR}/tools/*.hpp
+    ${PROJECT_SOURCE_DIR}/tools/**/*.hpp
+    ${PROJECT_SOURCE_DIR}/tools/*.h
+    ${PROJECT_SOURCE_DIR}/tools/**/*.h
     ${PROJECT_SOURCE_DIR}/include/*.hpp
     ${PROJECT_SOURCE_DIR}/include/*.h
     ${PROJECT_SOURCE_DIR}/include/**/*.hpp
@@ -17,11 +53,25 @@ file(GLOB_RECURSE ALL_SOURCE_FILES
 # Separate source files for clang-tidy (only compilable sources)
 file(GLOB_RECURSE COMPILABLE_SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/*.c
     ${PROJECT_SOURCE_DIR}/src/**/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/*.c
     ${PROJECT_SOURCE_DIR}/src/**/*.c
     ${PROJECT_SOURCE_DIR}/tests/*.cpp
     ${PROJECT_SOURCE_DIR}/tests/**/*.cpp
+    ${PROJECT_SOURCE_DIR}/tests/*.c
+    ${PROJECT_SOURCE_DIR}/tests/**/*.c
+    ${PROJECT_SOURCE_DIR}/examples/*.cpp
+    ${PROJECT_SOURCE_DIR}/examples/**/*.cpp
+    ${PROJECT_SOURCE_DIR}/examples/*.c
+    ${PROJECT_SOURCE_DIR}/examples/**/*.c
+    ${PROJECT_SOURCE_DIR}/benches/*.cpp
+    ${PROJECT_SOURCE_DIR}/benches/**/*.cpp
+    ${PROJECT_SOURCE_DIR}/benches/*.c
+    ${PROJECT_SOURCE_DIR}/benches/**/*.c
+    ${PROJECT_SOURCE_DIR}/tools/*.cpp
+    ${PROJECT_SOURCE_DIR}/tools/**/*.cpp
+    ${PROJECT_SOURCE_DIR}/tools/*.c
+    ${PROJECT_SOURCE_DIR}/tools/**/*.c
 )
 
 # Remove third-party directory files from quality tools processing

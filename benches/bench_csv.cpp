@@ -6,10 +6,13 @@
 
 #include <array>
 #include <chrono>
+#include <cstdlib>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <functional>
 #include <initializer_list>
+#include <iostream>
 #include <random>
 #include <string>
 #include <vector>
@@ -30,7 +33,8 @@ constexpr std::array<const char *, 5> kCategories = {"A", "B", "C", "D", "E"};
 std::filesystem::path GenerateCsvFile5Col(int num_rows) {
     const auto path = std::filesystem::temp_directory_path() / "bench_csv_5col.csv";
 
-    std::mt19937_64 rng(kRandomSeed);
+    // 再現可能なデータにするため固定シードを使う
+    std::mt19937_64 rng(kRandomSeed); // NOLINT(cert-msc32-c,cert-msc51-cpp)
     std::uniform_real_distribution<double> value_dist(0.0, 1000.0);
     std::uniform_int_distribution<int> cat_dist(0, 4);
     std::bernoulli_distribution flag_dist(0.10);
@@ -38,11 +42,8 @@ std::filesystem::path GenerateCsvFile5Col(int num_rows) {
     std::ofstream ofs(path);
     ofs << "id,category,value_a,value_b,flag\n";
     for (int i = 0; i < num_rows; ++i) {
-        ofs << i << ','
-            << kCategories[static_cast<size_t>(cat_dist(rng))] << ','
-            << value_dist(rng) << ','
-            << value_dist(rng) << ','
-            << (flag_dist(rng) ? 1 : 0) << '\n';
+        ofs << i << ',' << kCategories.at(static_cast<size_t>(cat_dist(rng))) << ',' << value_dist(rng) << ','
+            << value_dist(rng) << ',' << (flag_dist(rng) ? 1 : 0) << '\n';
     }
     return path;
 }
@@ -56,7 +57,8 @@ std::filesystem::path GenerateCsvFile5Col(int num_rows) {
 std::filesystem::path GenerateCsvFile30Col(int num_rows) {
     const auto path = std::filesystem::temp_directory_path() / "bench_csv_30col.csv";
 
-    std::mt19937_64 rng(kRandomSeed);
+    // 再現可能なデータにするため固定シードを使う
+    std::mt19937_64 rng(kRandomSeed); // NOLINT(cert-msc32-c,cert-msc51-cpp)
     std::uniform_real_distribution<double> value_dist(0.0, 99.99);
     std::uniform_int_distribution<int> cat_dist(0, 4);
     std::bernoulli_distribution flag_dist(0.10);
@@ -73,7 +75,7 @@ std::filesystem::path GenerateCsvFile30Col(int num_rows) {
     // 計 31列だが「30列程度」の意図に合わせて実装する
 
     for (int i = 0; i < num_rows; ++i) {
-        ofs << i << ',' << kCategories[static_cast<size_t>(cat_dist(rng))];
+        ofs << i << ',' << kCategories.at(static_cast<size_t>(cat_dist(rng)));
         for (int c = 0; c < 26; ++c) {
             ofs << ',' << value_dist(rng);
         }
@@ -109,10 +111,10 @@ namespace csv_bench {
 
 // (A) 列名アクセス: ループ内で row["name"] を使う素直な実装
 //     毎行、列名→インデックスのハッシュ探索が発生する
-std::vector<double> ReadFiltered_ByName(
-    const std::string &path,
-    std::function<bool(const csv::CSVRow &)> predicate,
-    const std::vector<std::string> &output_cols) {
+std::vector<double> ReadFilteredByName(
+    const std::string &path, const std::function<bool(const csv::CSVRow &)> &predicate,
+    const std::vector<std::string> &output_cols
+) {
     std::vector<double> result;
     csv::CSVReader reader(path);
     for (auto &row : reader) {
@@ -127,15 +129,15 @@ std::vector<double> ReadFiltered_ByName(
 
 // (B) インデックスアクセス: 事前に index_of() で列番号を解決し、直接アクセス
 //     ループ内のハッシュ探索コストを排除
-std::vector<double> ReadFiltered_ByIndex(
-    const std::string &path,
-    std::function<bool(const csv::CSVRow &)> predicate,
-    const std::vector<int> &output_col_indices) {
+std::vector<double> ReadFilteredByIndex(
+    const std::string &path, const std::function<bool(const csv::CSVRow &)> &predicate,
+    const std::vector<int> &output_col_indices
+) {
     std::vector<double> result;
     csv::CSVReader reader(path);
     for (auto &row : reader) {
         if (predicate(row)) {
-            for (int idx : output_col_indices) {
+            for (const int idx : output_col_indices) {
                 result.push_back(row[idx].get<double>());
             }
         }
@@ -146,15 +148,15 @@ std::vector<double> ReadFiltered_ByIndex(
 // (C) string_view: 型変換コストを最小化
 //     インデックスアクセス + get<string_view>() で double 変換を回避
 //     型変換が占めるコストを (B) との比較で分離計測できる
-std::vector<std::string> ReadFiltered_StringView(
-    const std::string &path,
-    std::function<bool(const csv::CSVRow &)> predicate,
-    const std::vector<int> &output_col_indices) {
+std::vector<std::string> ReadFilteredStringView(
+    const std::string &path, const std::function<bool(const csv::CSVRow &)> &predicate,
+    const std::vector<int> &output_col_indices
+) {
     std::vector<std::string> result;
     csv::CSVReader reader(path);
     for (auto &row : reader) {
         if (predicate(row)) {
-            for (int idx : output_col_indices) {
+            for (const int idx : output_col_indices) {
                 // string_view はイテレータ進行後に無効化されるため string にコピー
                 result.emplace_back(row[idx].get<csv::string_view>());
             }
@@ -166,15 +168,13 @@ std::vector<std::string> ReadFiltered_StringView(
 // (D) ハードコード: std::function / std::vector<int> の間接コストを排除
 //     フィルタ条件・出力列を直接記述し、コンパイラの完全インライン化を促す
 //     initializer_list は定数サイズに展開されるため間接コストが極小
-std::vector<double> ReadFiltered_Hardcoded(
-    const std::string &path,
-    int flag_idx,
-    std::initializer_list<int> out_indices) {
+std::vector<double>
+ReadFilteredHardcoded(const std::string &path, int flag_idx, std::initializer_list<int> out_indices) {
     std::vector<double> result;
     csv::CSVReader reader(path);
     for (auto &row : reader) {
         if (row[flag_idx].get<int>() == 1) {
-            for (int idx : out_indices) {
+            for (const int idx : out_indices) {
                 result.push_back(row[idx].get<double>());
             }
         }
@@ -207,7 +207,7 @@ void BenchRawRead(ankerl::nanobench::Bench &bench,
 
     bench.run(std::string("csv-parser ") + label + " [raw] chunk 64MB", [&] {
         csv::CSVFormat fmt;
-        fmt.chunk_size(64 * 1024 * 1024);
+        fmt.chunk_size(std::size_t{64} * 1024 * 1024);
         csv::CSVReader reader(path, fmt);
         int64_t count = 0;
         for (auto &row : reader) {
@@ -241,7 +241,7 @@ void BenchFiltered(ankerl::nanobench::Bench &bench,
         };
         bench.batch(filtered_count).minEpochIterations(3).minEpochTime(std::chrono::milliseconds(500));
         bench.run(std::string("csv-parser ") + label + " [filtered:A] by name", [&] {
-            auto result = csv_bench::ReadFiltered_ByName(path, pred, out_col_names);
+            auto result = csv_bench::ReadFilteredByName(path, pred, out_col_names);
             ankerl::nanobench::doNotOptimizeAway(result);
         });
     }
@@ -253,7 +253,7 @@ void BenchFiltered(ankerl::nanobench::Bench &bench,
         };
         bench.batch(filtered_count).minEpochIterations(3).minEpochTime(std::chrono::milliseconds(500));
         bench.run(std::string("csv-parser ") + label + " [filtered:B] by index", [&] {
-            auto result = csv_bench::ReadFiltered_ByIndex(path, pred, out_col_indices);
+            auto result = csv_bench::ReadFilteredByIndex(path, pred, out_col_indices);
             ankerl::nanobench::doNotOptimizeAway(result);
         });
     }
@@ -265,7 +265,7 @@ void BenchFiltered(ankerl::nanobench::Bench &bench,
         };
         bench.batch(filtered_count).minEpochIterations(3).minEpochTime(std::chrono::milliseconds(500));
         bench.run(std::string("csv-parser ") + label + " [filtered:C] string_view", [&] {
-            auto result = csv_bench::ReadFiltered_StringView(path, pred, out_col_indices);
+            auto result = csv_bench::ReadFilteredStringView(path, pred, out_col_indices);
             ankerl::nanobench::doNotOptimizeAway(result);
         });
     }
@@ -278,7 +278,7 @@ void BenchFiltered(ankerl::nanobench::Bench &bench,
             csv::CSVReader reader(path);
             for (auto &row : reader) {
                 if (row[flag_idx].get<int>() == 1) {
-                    for (int idx : out_col_indices) {
+                    for (const int idx : out_col_indices) {
                         result.push_back(row[idx].get<double>());
                     }
                 }
@@ -288,7 +288,9 @@ void BenchFiltered(ankerl::nanobench::Bench &bench,
     }
 }
 
-int main() {
+namespace {
+
+int Run() {
     // 5列版: kNumRows の 1/10、31列版: kNumRows の 1/100
     constexpr int kNumRows5col  = kNumRows / 10;
     constexpr int kNumRows31col = kNumRows / 100;
@@ -329,4 +331,17 @@ int main() {
     std::filesystem::remove(path30);
 
     return 0;
+}
+
+} // namespace
+
+int main() {
+    try {
+        return Run();
+    } catch (const std::exception &e) {
+        std::cerr << "error: " << e.what() << '\n';
+    } catch (...) {
+        std::cerr << "error: unknown exception\n";
+    }
+    return EXIT_FAILURE;
 }

@@ -2,6 +2,10 @@
 
 #include <nanobench.h>
 
+#include <cstdlib>
+#include <exception>
+#include <iostream>
+
 #include <nlohmann/json.hpp>
 #include <yyjson.h>
 
@@ -132,7 +136,9 @@ void BenchNlohmannComplex(ankerl::nanobench::Bench &bench) {
 
 } // namespace
 
-int main() {
+namespace {
+
+int Run() {
     ankerl::nanobench::Bench bench;
     bench.title("JSON Build + Serialize Benchmark").unit("op").warmup(500).minEpochIterations(50000);
 
@@ -153,4 +159,17 @@ int main() {
     BenchNlohmannComplex(bench);
 
     return 0;
+}
+
+} // namespace
+
+int main() {
+    try {
+        return Run();
+    } catch (const std::exception &e) {
+        std::cerr << "error: " << e.what() << '\n';
+    } catch (...) {
+        std::cerr << "error: unknown exception\n";
+    }
+    return EXIT_FAILURE;
 }
